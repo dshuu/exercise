@@ -17,21 +17,30 @@ const Didact = {
 // const container = document.getElementById('root')
 // Didact.render(element, container)
 
-const updateValue = (e) => {
-  console.log('trigger==>', e.target.value)
-  rerender(e.target.value)
-}
-const container = document.getElementById('root')
-const rerender = (value) => {
-  /** @jsxRuntime classic */
-  /** @jsx Didact.createElement */
-  const element = (
-    <div>
-      <input onInput={updateValue} value={value} />
-      <h2>Hello {value}</h2>
-    </div>
-  )
-  Didact.render(element, container)
-}
+//reconciliation
+// const updateValue = (e) => {
+//   rerender(e.target.value)
+// }
+// const container = document.getElementById('root')
+// const rerender = (value) => {
+//   /** @jsxRuntime classic */
+//   /** @jsx Didact.createElement */
+//   const element = (
+//     <div>
+//       <input onInput={updateValue} value={value} />
+//       <h2>Hello {value}</h2>
+//     </div>
+//   )
+//   Didact.render(element, container)
+// }
 
-rerender('World')
+// rerender('World')
+const container = document.getElementById('root')
+/** @jsxRuntime classic */
+/** @jsx Didact.createElement */
+function App(props) {
+  return <h1>Hi {props.name}</h1>
+}
+const element = <App name='foo123' />
+console.log('element===>', element, (window.aa = element))
+Didact.render(element, container)

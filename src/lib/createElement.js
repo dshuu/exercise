@@ -41,16 +41,27 @@ function commitWork(fiber) {
   if (!fiber) {
     return
   }
-  const domParent = fiber.parent.dom
+  let domParentFiber = fiber.parent
+  while (!domParentFiber.dom) {
+    domParentFiber = domParentFiber.parent
+  }
+  const domParent = domParentFiber.dom
   if (fiber.effectTag === 'PLACEMENT' && fiber.dom != null) {
     domParent.appendChild(fiber.dom)
   } else if (fiber.effectTag === 'UPDATE' && fiber.dom != null) {
     updateDom(fiber.dom, fiber.alternate.props, fiber.props)
   } else if (fiber.effectTag === 'DELETION') {
-    domParent.removeChild(fiber.dom)
+    commitDeletion(fiber, domParent)
   }
   commitWork(fiber.child)
   commitWork(fiber.sibling)
+}
+function commitDeletion(fiber, domParent) {
+  if (fiber.dom) {
+    domParent.removeChild(fiber.dom)
+  } else {
+    commitDeletion(fiber.child, domParent)
+  }
 }
 const isNew = (prev, next) => (key) => prev[key] !== next[key]
 const isGone = (prev, next) => (key) => !(key in next)
@@ -103,16 +114,25 @@ let nextUnitOfWork = null,
   wipRoot = null,
   currentRoot = null,
   deletions = null
-function performUnitOfWork(fiber) {
-  // 1.add dom node
+function updateFunctionComponent(fiber) {
+  const children = [fiber.type(fiber.props)]
+  reconcileChildren(fiber, children)
+}
+function updateHostComponent(fiber) {
   if (!fiber.dom) {
     fiber.dom = createDom(fiber)
   }
+  reconcileChildren(fiber, fiber.props.children)
+}
+function performUnitOfWork(fiber) {
   //防止渐进渲染
   // 2.create new fibers
-  const elements = fiber.props.children
-  reconcileChildren(fiber, elements)
-
+  const isFunctionComponent = fiber.type instanceof Function
+  if (isFunctionComponent) {
+    updateFunctionComponent(fiber)
+  } else {
+    updateHostComponent(fiber)
+  }
   // 3.return next unit of work
   if (fiber.child) {
     return fiber.child
