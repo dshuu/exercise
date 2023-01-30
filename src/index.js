@@ -1,7 +1,8 @@
-import { createElement, render } from './lib/createElement'
+import { createElement, render, useState } from './lib/createElement'
 const Didact = {
   createElement,
   render,
+  useState,
 }
 // /** @jsxRuntime classic */
 // /** @jsx Didact.createElement */
@@ -35,12 +36,23 @@ const Didact = {
 // }
 
 // rerender('World')
-const container = document.getElementById('root')
+
+// const container = document.getElementById('root')
+// /** @jsxRuntime classic */
+// /** @jsx Didact.createElement */
+// function App(props) {
+//   return <h1>Hi {props.name}</h1>
+// }
+// const element = <App name='foo123' />
+// console.log('element===>', element, (window.aa = element))
+// Didact.render(element, container)
+
 /** @jsxRuntime classic */
 /** @jsx Didact.createElement */
-function App(props) {
-  return <h1>Hi {props.name}</h1>
+function Counter() {
+  const [state, setState] = Didact.useState(1)
+  return <h1 onClick={() => setState((c) => c + 1)}>Count: {state}</h1>
 }
-const element = <App name='foo123' />
-console.log('element===>', element, (window.aa = element))
+const element = <Counter />
+const container = document.getElementById('root')
 Didact.render(element, container)
